@@ -10,7 +10,10 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = push_swap.a
+NAME = push_swap
+LIBFT_DIR = libft
+LIBFT = $(LIBFT_DIR)/libft.a
+LIB_NAME = push_swap.a
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -I include
@@ -21,25 +24,35 @@ OBJ_DIR = obj
 SRC = $(wildcard $(SRC_DIR)/*.c)
 OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
-# Build object directory and compile each .c file into .o
+# Build libft
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
+
+# Build object directory and compile .c files to .o
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Create static library archive from object files
-$(NAME): $(OBJ)
-	ar rcs $(NAME) $(OBJ)
+# Build static library push_swap.a
+$(LIB_NAME): $(OBJ)
+	ar rcs $(LIB_NAME) $(OBJ)
 
-# Default rule
-all: $(NAME)
+# Build executable push_swap
+$(NAME): $(LIBFT) $(LIB_NAME)
+	$(CC) $(CFLAGS) -o $(NAME) $(LIB_NAME) $(LIBFT)
+
+# Default rule: build everything
+all: $(LIBFT) $(LIB_NAME) $(NAME)
 
 # Clean object files
 clean:
 	rm -rf $(OBJ_DIR)
+	$(MAKE) -C $(LIBFT_DIR) clean
 
-# Clean everything including library
+# Clean everything
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(LIB_NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 # Rebuild everything
 re: fclean all
